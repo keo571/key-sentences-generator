@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} Key Sentences Generator {% endblock %}</h1>
+<br>
+<div class="row">
+    <div class="col-md">
+        <form method="post">
+            <textarea name="content" placeholder="Please enter your text" rows="20"
+                cols="80">{{ request.form['content'] }}</textarea>
+            <br>
+            <button type="submit" class="btn btn-outline-secondary">Submit</button>
+        </form>
+    </div>
+    <div class="col-md">
+        {% for sen in sentences %}
+        <div class='message'>
+            <p>{{ sen }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} About {% endblock %}</h1>
+<hr>
+
+<h3 id="objectives">Objectives</h3>
+<p>Implements a procedure using singular value decomposition (SVD) to summarize a long document by identifying and
+    ranking important sentences automatically.</p>
+
+<h3 id="algorithm">Algorithm</h3>
+<p>The algorithm comes from the book <em>Matrix Methods in Data Mining and Pattern Recognition</em> by Lars Eldén.</p>
+<p>It is based on the intuitive idea that a sentence is important if it contains many important words. And a word is
+    important if it appears in many important sentences.</p>
+
+<h3 id="data-representation">Data Representation</h3>
+<p>Suppose the document consists of <em>n</em> distinct sentences and <em>m</em> unique words. Next, let <em>i</em> be a
+    word and let <em>j</em> be a sentence. Furthermore, let <em>n<sub>i</sub></em> denote the number of sentences
+    containing word <em>i</em>. We can represent the document by a matrix A, called the term-sentence matrix, where each
+    entry <em>a<sub>i,j</sub></em> is defined as:</p>
+<img alt="math1"
+    src="https://render.githubusercontent.com/render/math?math=a_%7Bi%2Cj%7D%20%3D%20%0A%5Cbegin%7Bcases%7D%20%0A%5Cfrac%7B1%7D%7B%5Cln(%5Cfrac%7Bn%2B1%7D%7Bn_i%7D)%7D%20%26%20%5Ctext%7Bif%20word%20i%20appears%20in%20sentence%20j%2C%20or%7D%20%5C%5C%0A0%20%26%20%5Ctext%7Botherwise.%7D%0A%5Cend%7Bcases%7D">
+
+<p><em>a<sub>i,j</sub></em> tends to be small if <em>i</em> does not appear in many sentences (i.e.,
+    <em>n<sub>i</sub></em> is small). The <em>n</em>+1 ensures that we do not divide by zero when calculating
+    <em>a<sub>i,j</sub></em>; in particular, even if word <em>i</em> appears in every sentence (<em>n<sub>i</sub></em> =
+    <em>n</em>), the value ln ((<em>n</em> + 1) / (<em>n<sub>i</sub></em>)) &gt; 0. Each sentence contains just a few of
+    the possible words. Therefore, A is sparse.
+</p>
+
+<h3 id="mathematical-formulation">Mathematical Formulation</h3>
+<p>Word’s importance is <em>w<sub>i</sub></em>, sentence importance is <em>s<sub>j</sub></em>. These scores are
+    inter-related. Suppose these relationships are linear, then <em>w<sub>i</sub></em> is proportional to the sum of
+    <em>a<sub>i,j</sub></em> * <em>s<sub>j</sub></em> for every sentence, <em>s<sub>j</sub></em> is proportional to the
+    sum of <em>a<sub>i,j</sub></em> * <em>w<sub>i</sub></em> for every word.
+</p>
+
+<p>Figure out the <em>w<sub>i</sub></em> and <em>s<sub>j</sub></em> for every word and every sentence, then the most
+    important words and sentences should have the largest scores.</p>
+
+<p>The above model can be rewritten in matrix form. Letting <em>w</em> =
+    [<em>w<sub>0</sub></em>,<em>w<sub>1</sub></em>,…,<em>w<sub>m−1</sub></em>] be the (column) vector of word scores and
+    <em>s</em> = [<em>s<sub>0</sub></em>,<em>s<sub>1</sub></em>,…,<em>s<sub>n−1</sub></em>] be the (column) vector of
+    sentence scores, we can define <em>w</em> and <em>s</em> as:
+</p>
+<img alt="math2"
+    src="https://render.githubusercontent.com/render/math?math=%5Cbegin%7Barray%7D%7Bc%7D%0Aw_i%20%5Cpropto%20%5Csum_j%20a_%7Bi%2Cj%7D%20s_j%20%5C%5C%0As_j%20%5Cpropto%20%5Csum_i%20a_%7Bj%2Ci%7D%20w_i%0A%5Cend%7Barray%7D">
+
+<p><em>c<sub>w</sub></em> and <em>c<sub>s</sub></em> are two unknown contants.</p>
+<p>Going one step further, plug these two eauations into one antoher to obtain the following:</p>
+<img alt="math3"
+    src="https://render.githubusercontent.com/render/math?math=%5Cbegin%7Barray%7D%7Bc%7D%0A%20%20(A%20A%5ET)%20w%20%3D%20(c_s%20c_w)%20w%20%5C%5C%0A%20%20(A%5ET%20A)%20s%20%3D%20(c_w%20c_s)%20s%0A%5Cend%7Barray%7D">
+
+<p>Now it becomes eigenvalue problems. Using SVD, we can have <em>s</em> and <em>w</em>.</p>
+<p>SVD takes a rectangular matrix of gene expression data (defined as A, where A is a <em>n x p</em> matrix) in which
+    the <em>n</em> rows represents the genes, and the <em>p</em> columns represents the experimental conditions. The SVD
+    theorem states:</p>
+<img alt="math4"
+    src="https://render.githubusercontent.com/render/math?math=A_%7Bn%20%5Ctimes%20p%7D%20%3D%20U_%7Bn%20%5Ctimes%20n%7DS_%7Bn%20%5Ctimes%20p%7DV%5ET_%7Bp%20%5Ctimes%20p%7D">
+
+<p>U and V are orthogonal.</p>
+<p>The eigenvectors of A<sup>T</sup>A make up the columns of V , the eigenvectors of AA<sup>T</sup> make up the columns
+    of U. Also, the singular values in S are square roots of eigenvalues from A<sup>T</sup>A or AA<sup>T</sup>.</p>
+<p>We find the largest singular value σ<sub>0</sub> of A, and it left and right singular vectors, then the left singular
+    vector u<sub>0</sub> is <em>w</em>, the right vector v<sub>0</sub> is <em>s</em>.</p>
+<p>Finally, we can use u<sub>0</sub> and v<sub>0</sub> to rank the words and sentences.</p>
+{% endblock %}
